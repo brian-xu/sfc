@@ -406,6 +406,8 @@ def grid(columns: List[int], rows: List[int]) -> List[List[int]]:
 
 @lru_cache(copy=True)
 def gen_curve(width: int, height: int, d: str) -> [np.array, bool]:
+    if width == 0 or height == 0:
+        return [np.array([]), False]
     if width == 1:
         if height == 1:
             return [np.array([[0]]), False]
@@ -424,22 +426,20 @@ def gen_curve(width: int, height: int, d: str) -> [np.array, bool]:
             return [np.array([[width - i - 1 for i in range(width)]]), False]
     if width == 2:
         if height % 2 == 0:
-            if d in ["d_neg", "d_neg_r", "d_pos", "d_pos_r"]:
+            if d == "d_neg":
                 return [np.array([]), False]
-            else:
+            if d == "s_0":
                 return [
                     np.array([[i, 2 * height - i - 1] for i in range(height)]),
                     True,
                 ]
         if height % 2 == 1:
-            if d in ["s_1", "s_1_r", "s_3", "s_3_r"]:
-                return [np.array([]), False]
-            if d in ["s_0", "s_0_r", "s_2", "s_2_r"]:
+            if d == "s_0":
                 return [
                     np.array([[i, 2 * height - i - 1] for i in range(height)]),
                     True,
                 ]
-            if d in ["d_neg", "d_neg_r"]:
+            if d == "d_neg":
                 return [
                     np.array(
                         [
@@ -449,54 +449,29 @@ def gen_curve(width: int, height: int, d: str) -> [np.array, bool]:
                     ),
                     True,
                 ]
-            if d in ["d_pos", "d_pos_r"]:
-                return [
-                    np.array(
-                        [
-                            [2 * i + 1 * (1 - i % 2), 2 * i + 1 * (i % 2)]
-                            for i in range(height)
-                        ]
-                    ),
-                    True,
-                ]
     if height == 2:
         if width % 2 == 0:
-            if d in ["d_neg", "d_neg_r", "d_pos", "d_pos_r"]:
+            if d == "d_neg":
                 return [np.array([]), False]
-            else:
+            if d == "s_0":
                 return [
                     np.array(
                         [
-                            [i for i in range(width)],
-                            [2 * width - i - 1 for i in range(width)],
+                            [2 * i + 1 * (i % 2), 2 * i + 1 * (1 - i % 2)]
+                            for i in range(width)
                         ]
-                    ),
+                    ).T,
                     True,
                 ]
         if width % 2 == 1:
-            if d in ["s_0", "s_0_r", "s_2", "s_2_r"]:
+            if d == "s_0":
                 return [np.array([]), False]
-            if d in ["s_1", "s_1_r", "s_3", "s_3_r"]:
-                return [
-                    np.array([[i, 2 * height - i - 1] for i in range(height)]),
-                    True,
-                ]
-            if d in ["d_neg", "d_neg_r"]:
+            if d == "d_neg":
                 return [
                     np.array(
                         [
                             [i * 2 + 1 * (i % 2) for i in range(width)],
                             [i * 2 + 1 * (1 - i % 2) for i in range(width)],
-                        ]
-                    ),
-                    True,
-                ]
-            if d in ["d_pos", "d_pos_r"]:
-                return [
-                    np.array(
-                        [
-                            [i * 2 + 1 * (1 - i % 2) for i in range(width)],
-                            [i * 2 + 1 * (i % 2) for i in range(width)],
                         ]
                     ),
                     True,
@@ -546,39 +521,25 @@ def gen_curve(width: int, height: int, d: str) -> [np.array, bool]:
     res = [[0 for _ in range(3)] for __ in range(3)]
     for n in range(9):
         i, j = order[n]
-        subsection_direction = solution[n]
-        curve_direction = subsection_direction
-        subsection_width, subsection_height = subsections[i][j]
-        if subsection_direction[2] in ["1", "3"]:
-            if subsection_width > 1 and subsection_height > 1:
-                subsection_width, subsection_height = (
-                    subsection_height,
-                    subsection_width,
-                )
-                curve_direction = "s_0"
-                if subsection_direction[-1] == "r":
-                    curve_direction += "_r"
-        if subsection_direction[2] == "p":
-            if subsection_width > 1 and subsection_height > 1:
-                subsection_width, subsection_height = (
-                    subsection_height,
-                    subsection_width,
-                )
-                curve_direction = "d_neg"
-                if subsection_direction[-1] == "r":
-                    curve_direction += "_r"
-        subsection, needs_rotation = gen_curve(
-            subsection_width, subsection_height, curve_direction
-        )
+        sub_direction = solution[n]
+        sub_width, sub_height = subsections[i][j]
+        if sub_direction[2] in ["1", "3"] and sub_width > 1 and sub_height > 1:
+            subsection, needs_rotation = gen_curve(sub_height, sub_width, "s_0")
+        elif sub_direction[2] == "2" and sub_width > 1 and sub_height > 1:
+            subsection, needs_rotation = gen_curve(sub_width, sub_height, "s_0")
+        elif sub_direction[2] == "p" and sub_width > 1 and sub_height > 1:
+            subsection, needs_rotation = gen_curve(sub_height, sub_width, "d_neg")
+        else:
+            subsection, needs_rotation = gen_curve(sub_width, sub_height, sub_direction)
         if len(subsection) == 0:
             return [np.array([]), False]
         if needs_rotation:
-            rotations = subsection_direction[2]
+            rotations = sub_direction[2]
             if rotations == "p":
                 subsection = np.rot90(subsection, k=1)
             if rotations.isnumeric():
                 subsection = np.rot90(subsection, k=-int(rotations))
-            if subsection_direction[-1] == "r":
+            if sub_direction[-1] == "r":
                 subsection = subsection.size - 1 - subsection
         res[i][j] = subsection
     prev = 0

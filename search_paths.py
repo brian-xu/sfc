@@ -52,7 +52,7 @@ def sort_solutions(solutions):
     res = []
     while heap and heap[0][0] == minscore:
         res.append(heapq.heappop(heap))
-    return res
+    return res[0][1]
 
 
 def search(even_columns, even_rows):
@@ -411,8 +411,6 @@ def solve_z(curve, corner, i):
     return len(solutions) > 0, solutions
 
 
-perms = []
-
 for c in range(4):
     for r in range(4):
         print(c, r)
@@ -420,10 +418,5 @@ for c in range(4):
             print(ordering)
             if solution["g"]:
                 print("G:", sort_solutions(solution["g"]))
-                perms.append(len(sort_solutions(solution["g"])))
-                print(len(sort_solutions(solution["g"])))
             if solution["z"]:
                 print("Z:", sort_solutions(solution["z"]))
-                perms.append(len(sort_solutions(solution["z"])))
-                print(len(sort_solutions(solution["z"])))
-print(perms)
