@@ -525,7 +525,7 @@ def gen_curve(width: int, height: int, d: str) -> [np.array, bool]:
         sub_width, sub_height = subsections[i][j]
         if sub_direction[2] in ["1", "3"] and sub_width > 1 and sub_height > 1:
             subsection, needs_rotation = gen_curve(sub_height, sub_width, "s_0")
-        elif sub_direction[2] == "2" and sub_width > 1 and sub_height > 1:
+        elif sub_direction[2] in ["0", "2"] and sub_width > 1 and sub_height > 1:
             subsection, needs_rotation = gen_curve(sub_width, sub_height, "s_0")
         elif sub_direction[2] == "p" and sub_width > 1 and sub_height > 1:
             subsection, needs_rotation = gen_curve(sub_height, sub_width, "d_neg")
