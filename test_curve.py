@@ -24,7 +24,7 @@ def bfs(curve):
 for width in range(1, 1000):
     for height in range(1, 1000):
         try:
-            z = gen_curve(width, height, "d_neg")[0]
+            z = gen_curve(width, height, "d_neg")
             if z.size > 0:
                 if not bfs(z):
                     print(f"Failed Z-type curve with dimensions w={width}, h={height}")
@@ -33,7 +33,7 @@ for width in range(1, 1000):
             print(f"Failed Z-type curve with dimensions w={width}, h={height}")
             quit()
         try:
-            g = gen_curve(width, height, "s_0")[0]
+            g = gen_curve(width, height, "s_0")
             if g.size > 0:
                 if not bfs(g):
                     print(f"Failed G-type curve with dimensions w={width}, h={height}")
