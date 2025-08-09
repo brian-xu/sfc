@@ -1,43 +1,12 @@
 import itertools
 import heapq
+from utils import ordered_g, ordered_z, grid
+
 
 top_l = 0
 top_r = 1
 bottom_l = 2
 bottom_r = 3
-
-ordered_z = [
-    [0, 0],
-    [1, 0],
-    [2, 0],
-    [2, 1],
-    [1, 1],
-    [0, 1],
-    [0, 2],
-    [1, 2],
-    [2, 2],
-]
-ordered_g = [
-    [0, 0],
-    [1, 0],
-    [2, 0],
-    [2, 1],
-    [2, 2],
-    [1, 2],
-    [1, 1],
-    [0, 1],
-    [0, 2],
-]
-
-
-def grid(columns, rows):
-    dims = []
-    for height in rows:
-        row = []
-        for width in columns:
-            row.append([width, height])
-        dims.append(row)
-    return dims
 
 
 def sort_solutions(solutions):

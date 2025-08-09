@@ -21,8 +21,10 @@ def bfs(curve):
     return True
 
 
-for width in range(1, 1000):
-    for height in range(1, 1000):
+search_dim = 1000
+
+for width in range(1, search_dim):
+    for height in range(1, search_dim):
         try:
             z = gen_curve(width, height, "d_neg")
             if z.size > 0:
